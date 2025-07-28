@@ -10,15 +10,14 @@ const ProtectedPage = ({token}) =>{
             authorization: `Bearer ${token}`
         }
     }
+    console.log(config)
     const fetchData = async () =>{
-        const response = await axios.get('http://localhost:3004/hello')
-        console.log(response.data)
+        const response = await axios.get('http://localhost:3004/hello', config)
         setData(response.data)
     }
         useEffect(() => {
             if(isRun.current) return
             isRun.current = true;
-
             fetchData()
 
         }, [])

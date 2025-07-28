@@ -2,16 +2,16 @@
 import useAuth from "./components/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import ProtectedPage from "./components/ProtectedPage";
 export default function Home() {
   const router = useRouter();
   const [isLogin, token] = useAuth();
-  console.log("token", token)
   useEffect(() => {
     if (isLogin) {
-      router.push("/publicPage");
+      <ProtectedPage token={token}/>
     } else {
       router.push("/signIn");
     }
   }, [isLogin, router]);
-  return null; 
+  
 }
