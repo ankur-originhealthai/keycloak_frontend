@@ -40,7 +40,7 @@ const ProtectedPage = ({ token }: { token: string }) => {
   }, []);
   return (
     <div className="min-h-screen bg-neutral-600 py-10 px-6 ">
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-blue-600">
+      <div className="max-w-2xl h-[500px] mx-auto bg-white rounded-2xl shadow-lg p-8 border border-blue-600">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Protected Page</h1>
           <Logout />
@@ -62,6 +62,10 @@ const ProtectedPage = ({ token }: { token: string }) => {
             </ul>
           </div>
           <div className="mt-6">
+            <ul className="list-disc list-inside text-gray-600 mt-2">
+              {roles.includes("user") && <li>This page can be accessed by normal user only</li>}
+              
+            </ul>
       
             <ul className="list-disc list-inside text-gray-600 mt-2">
               {roles.includes("admin") && <li>{adminData}</li>}

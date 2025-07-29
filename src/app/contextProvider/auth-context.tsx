@@ -1,6 +1,6 @@
 "use client";
 import Keycloak from "keycloak-js";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import React, {
   createContext,
   useContext,
@@ -20,7 +20,7 @@ interface AuthContextType {
   token: string | null;
   roles: string[];
   username: string | null;
-  logout: () => void; 
+  logout: () => void;
 }
 const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -50,9 +50,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const decoded: DecodedToken = jwtDecode(kcToken);
         setLogin(true);
         setToken(kcToken);
-        localStorage.setItem("token", kcToken)
+        localStorage.setItem("token", kcToken);
         setRoles(decoded?.realm_access?.roles || []);
         setUsername(decoded?.name || null);
+
+        setInterval(() => {
+          keycloak.updateToken(70).then((refreshed) => {
+            if (refreshed) {
+              const updatedToken = keycloak.token!;
+              const decoded: DecodedToken = jwtDecode(updatedToken);
+              setToken(updatedToken);
+              setRoles(decoded?.realm_access?.roles || []);
+              setUsername(decoded?.preferred_username || null);
+            }
+          });
+        }, 60000);
       })
       .catch((err) => {
         console.error("Keycloak init error:", err);
@@ -62,9 +74,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     keycloakRef.current?.logout({
       redirectUri: window.location.origin,
     });
-    localStorage.removeItem("token")
-    setUsername(null)
-    setRoles([])
+    localStorage.removeItem("token");
+    setUsername(null);
+    setRoles([]);
   };
   return (
     <AuthContext.Provider
