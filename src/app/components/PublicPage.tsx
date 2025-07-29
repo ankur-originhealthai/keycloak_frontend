@@ -1,7 +1,7 @@
 const PublicPage = () =>{
     return(
         <>
-        Public page</>
+        Public page that can be accessed by anyone</>
     )
 }
 
