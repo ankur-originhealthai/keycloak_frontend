@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "./auth-context";
+import { useAuth } from "../contextProvider/auth-context";
 
 export default function Logout() {
   const { username, logout } = useAuth();

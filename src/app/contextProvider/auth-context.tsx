@@ -28,11 +28,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
   const [username, setUsername] = useState<string | null>(null);
-  const isInitialized = useRef(false);
+  const isKeyCloakInitialized = useRef(false);
   const keycloakRef = useRef<Keycloak | null>(null);
   useEffect(() => {
-    if (isInitialized.current) return;
-    isInitialized.current = true;
+    if (isKeyCloakInitialized.current) return;
+    isKeyCloakInitialized.current = true;
     const keycloak = new Keycloak({
       url: process.env.NEXT_PUBLIC_KEYCLOAK_URL!,
       realm: process.env.NEXT_PUBLIC_KEYCLOAK_REALM!,

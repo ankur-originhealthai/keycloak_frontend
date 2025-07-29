@@ -1,7 +1,7 @@
 "use client";
 import axios from "axios";
 import { useRef, useState, useEffect } from "react";
-import { useAuth } from "./auth-context";
+import { useAuth } from "../contextProvider/auth-context";
 import Logout from "./Logout";
 const ProtectedPage = ({ token }: { token: string }) => {
   const isRun = useRef(false);
@@ -15,7 +15,7 @@ const ProtectedPage = ({ token }: { token: string }) => {
   };
   const fetchUserData = async () => {
     try {
-      const response = await axios.get("http://localhost:3004/hello/", config);
+      const response = await axios.get("http://localhost:3004/user/", config);
       setEmail(response.data.user.email);
     } catch (error) {
       console.error("Error fetching protected data:", error);
@@ -23,7 +23,7 @@ const ProtectedPage = ({ token }: { token: string }) => {
   };
    const fetchAdminData = async () => {
     try {
-      const response = await axios.get("http://localhost:3004/hello/adminData", config);
+      const response = await axios.get("http://localhost:3004/user/adminData", config);
       setAdminData(response.data.message);
     } catch (error) {
       console.error("Error fetching protected data:", error);
