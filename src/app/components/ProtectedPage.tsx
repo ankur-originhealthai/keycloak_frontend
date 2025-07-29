@@ -13,7 +13,8 @@ const ProtectedPage = ({token}) =>{
     console.log(config)
     const fetchData = async () =>{
         const response = await axios.get('http://localhost:3004/hello', config)
-        setData(response.data)
+        console.log(response)
+        setData(response.data.user.email)
     }
         useEffect(() => {
             if(isRun.current) return

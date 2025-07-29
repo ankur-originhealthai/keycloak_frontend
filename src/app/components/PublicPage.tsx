@@ -1,8 +1,8 @@
-const publicPage = () =>{
+const PublicPage = () =>{
     return(
         <>
         Public page</>
     )
 }
 
-export default publicPage
+export default PublicPage
