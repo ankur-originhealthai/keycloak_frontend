@@ -10,7 +10,6 @@ import React, {
   ReactNode,
 } from "react";
 interface DecodedToken {
-  name: null;
   realm_access?: { roles: string[] };
   email?: string;
   preferred_username?: string;
@@ -28,11 +27,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
   const [username, setUsername] = useState<string | null>(null);
-  const isKeyCloakInitialized = useRef(false);
+  const isKeycloakInitialized = useRef(false);
   const keycloakRef = useRef<Keycloak | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
-    if (isKeyCloakInitialized.current) return;
-    isKeyCloakInitialized.current = true;
+    if (isKeycloakInitialized.current) return;
+    isKeycloakInitialized.current = true;
     const keycloak = new Keycloak({
       url: process.env.NEXT_PUBLIC_KEYCLOAK_URL!,
       realm: process.env.NEXT_PUBLIC_KEYCLOAK_REALM!,
@@ -52,41 +52,54 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setToken(kcToken);
         localStorage.setItem("token", kcToken);
         setRoles(decoded?.realm_access?.roles || []);
-        setUsername(decoded?.name || null);
-
-        setInterval(() => {
-          keycloak.updateToken(70).then((refreshed) => {
-            if (refreshed) {
-              const updatedToken = keycloak.token!;
-              const decoded: DecodedToken = jwtDecode(updatedToken);
-              setToken(updatedToken);
-              setRoles(decoded?.realm_access?.roles || []);
-              setUsername(decoded?.preferred_username || null);
-            }
-          });
+        setUsername(decoded?.preferred_username || null);
+      
+        intervalRef.current = setInterval(() => {
+          keycloak
+            .updateToken(70)
+            .then((refreshed) => {
+              if (refreshed) {
+                const updatedToken = keycloak.token!;
+                const decoded: DecodedToken = jwtDecode(updatedToken);
+                setToken(updatedToken);
+                setRoles(decoded?.realm_access?.roles || []);
+                setUsername(decoded?.preferred_username || null);
+                localStorage.setItem("token", updatedToken);
+              }
+            })
+            .catch(() => {
+              console.warn("Token refresh failed. Logging out...");
+              logout();
+            });
         }, 60000);
+
+        keycloak.onTokenExpired = () => {
+          console.warn("Token expired. Logging out...");
+          logout();
+        };
       })
       .catch((err) => {
         console.error("Keycloak init error:", err);
       });
+    // Clean up on unmount
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, []);
   const logout = () => {
     keycloakRef.current?.logout({
       redirectUri: window.location.origin,
     });
     localStorage.removeItem("token");
-    setUsername(null);
+    setLogin(false);
+    setToken(null);
     setRoles([]);
+    setUsername(null);
+    if (intervalRef.current) clearInterval(intervalRef.current);
   };
   return (
     <AuthContext.Provider
-      value={{
-        isLogin,
-        token,
-        roles,
-        username,
-        logout,
-      }}
+      value={{ isLogin, token, roles, username, logout }}
     >
       {children}
     </AuthContext.Provider>
