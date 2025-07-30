@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .catch((err) => {
         console.error("Keycloak init error:", err);
       });
-    // Clean up on unmount
+   
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
